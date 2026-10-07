@@ -3,7 +3,8 @@
     <el-container style="min-height: 100vh">
       <el-aside width="200px" class="app-aside">
         <div class="brand">
-          <span class="brand-name">志愿填报·管理端</span>
+          <img src="/logo.jpg" alt="" class="brand-img" />
+          <span class="brand-name">砚衡升学</span>
         </div>
         <el-menu :default-active="route.path" router>
         <el-menu-item index="/admin/dashboard">

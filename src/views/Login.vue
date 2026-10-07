@@ -86,8 +86,8 @@
       <!-- 右侧登录表单 -->
       <div class="form-side">
         <div class="brand-row">
-          <div class="brand-logo">志</div>
-          <div class="brand-title">志愿填报升学规划系统</div>
+          <img class="brand-logo" src="/logo.jpg" alt="砚衡升学" />
+          <div class="brand-title">砚衡升学 · 志愿填报系统</div>
         </div>
         <div class="brand-divider"></div>
 
@@ -277,17 +277,13 @@ async function handleLogin() {
   gap: 12px;
 
   .brand-logo {
-    width: 46px;
-    height: 46px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #e8543f, #c93a2c);
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(200, 60, 40, 0.3);
+    object-fit: cover;
+    object-position: center 32%;
+    box-shadow: 0 4px 10px rgba(47, 108, 232, 0.25);
+    background: #fff;
   }
 
   .brand-title {
