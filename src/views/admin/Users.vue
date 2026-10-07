@@ -33,9 +33,11 @@
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
             <el-tag v-if="isExpired(row)" type="danger" size="small">已过期</el-tag>
-            <el-tag v-else :type="row.status === 1 ? 'success' : 'info'" size="small">
-              {{ row.status === 1 ? '正常' : '已停用' }}
-            </el-tag>
+            <el-tag v-else-if="row.status === 1" type="success" size="small">正常</el-tag>
+            <el-tag v-else-if="row.roleCode === 'admin'" type="info" size="small">停用</el-tag>
+            <el-tooltip v-else content="违规停用, 联系管理员可恢复或重新开通" placement="top">
+              <el-tag type="danger" effect="plain" size="small">违规停用</el-tag>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column label="有效期至" width="120">
@@ -54,8 +56,8 @@
                 {{ isExpired(row) ? '重新开通' : '续费1年' }}
               </el-button>
               <el-button size="small" type="warning" plain @click="onResetPassword(row)">重置密码</el-button>
-              <el-button v-if="row.status === 1" size="small" type="danger" plain @click="onToggle(row, 0)">停用</el-button>
-              <el-button v-else size="small" type="success" plain @click="onToggle(row, 1)">启用</el-button>
+              <!-- 过期账号启用无效(登录仍被拦), 只能重新开通 -->
+              <el-button v-if="row.status === 1 && !isExpired(row)" size="small" type="danger" plain @click="onToggle(row, 0)">停用(违规)</el-button>
             </template>
             <span v-else style="color:#c0c4cc;font-size:12px">系统管理员</span>
           </template>
@@ -206,7 +208,7 @@ async function onRenew(row: UserRow) {
 async function onToggle(row: UserRow, status: 0 | 1) {
   try {
     await updateUserStatus(row.id, status)
-    ElMessage.success(status === 1 ? '已启用' : '已停用')
+    ElMessage.success(status === 1 ? '已启用' : '已违规停用')
     load()
   } catch (e: any) {
     ElMessage.error(e.message || '操作失败')
