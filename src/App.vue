@@ -19,15 +19,5 @@ html, body, #app {
 }
 
 /* 确保所有布局容器撑满视口 */
-html {
-  overflow: hidden;
-}
 
-body {
-  overflow: hidden;
-}
-
-#app {
-  overflow: hidden;
-}
 </style>

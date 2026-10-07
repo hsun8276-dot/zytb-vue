@@ -4,8 +4,7 @@
       <el-aside width="200px" class="app-aside">
         <div class="brand">
           <img src="/logo.jpg" alt="" class="brand-img" />
-          <span class="brand-name">砚衡AI云数据升学规划系统</span>
-        </div>
+                  </div>
         <el-menu :default-active="route.path" router>
         <el-menu-item index="/admin/dashboard">
           <el-icon><HomeFilled /></el-icon>
@@ -27,7 +26,6 @@
       </el-aside>
       <el-container>
         <el-header class="app-header">
-          <span>{ title }</span>
           <el-button link @click="doLogout">退出登录</el-button>
         </el-header>
         <el-main>
@@ -55,6 +53,17 @@ async function doLogout() {
 </script>
 
 <style scoped lang="scss">
+.app-shell {
+  background: #f5f7fa;
+}
+
+.brand-img {
+  width: 130px;
+  height: auto;
+  display: block;
+  margin: 4px 0 6px;
+}
+
 .app-aside {
   border-right: 1px solid #eef0f4;
   background: #fff;
@@ -72,7 +81,8 @@ async function doLogout() {
 .app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  background: #fff;
   border-bottom: 1px solid #eef0f4;
   font-weight: 600;
 }
