@@ -28,7 +28,7 @@
           <img src="@/assets/logo.svg" alt="Logo" class="logo" />
           <div class="brand-text">
             <h1>志愿填报</h1>
-            <p>河北省单招 · 对口升学智慧学习平台</p>
+            <p>全国高考志愿填报服务平台</p>
           </div>
         </div>
 
@@ -37,7 +37,7 @@
             <span class="icon-chip"><el-icon :size="20"><Reading /></el-icon></span>
             <div class="feature-text">
               <b>海量精品题库</b>
-              <span>覆盖河北单招 / 对口全部考试类</span>
+              <span>覆盖全国 3075 所高校招生数据</span>
             </div>
           </li>
           <li>
