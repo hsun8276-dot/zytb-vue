@@ -58,3 +58,7 @@ export async function getCurrentUser(): Promise<{
 export async function resetUserPassword(userId: number, password: string): Promise<void> {
   return request.put(`/user/${userId}/password/reset`, { password }) as Promise<void>
 }
+/** 当前登录用户详情 */
+export function getUserDetail(userId?: number) {
+  return request.get('/user/detail', { params: { userId } }) as Promise<{ id: number; username: string; realName: string; role: string }>
+}

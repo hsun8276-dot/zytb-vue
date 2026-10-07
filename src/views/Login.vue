@@ -107,7 +107,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Reading, MagicStick, Notebook, InfoFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { login } from '@/api/auth'
-import { getUserDetail } from '@/api/student'
+import { getUserDetail } from '@/api/auth'
 import { encryptPasswordForLogin, resetRsaKeyCache } from '@/utils/rsa'
 
 const router = useRouter()
