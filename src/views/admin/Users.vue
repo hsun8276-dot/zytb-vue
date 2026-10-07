@@ -32,15 +32,27 @@
         </el-table-column>
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
+            <el-tag v-if="isExpired(row)" type="danger" size="small">已过期</el-tag>
+            <el-tag v-else :type="row.status === 1 ? 'success' : 'info'" size="small">
               {{ row.status === 1 ? '正常' : '已停用' }}
             </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="有效期至" width="120">
+          <template #default="{ row }">
+            <span v-if="!row.expireTime" style="color:#c0c4cc;font-size:12px">永久</span>
+            <span v-else :style="{ color: isExpired(row) ? '#f56c6c' : expireSoon(row) ? '#e6a23c' : '#333' }">
+              {{ row.expireTime.slice(0, 10) }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
             <template v-if="row.roleCode !== 'admin'">
+              <el-button size="small" type="primary" plain @click="onRenew(row)">
+                {{ isExpired(row) ? '重新开通' : '续费1年' }}
+              </el-button>
               <el-button size="small" type="warning" plain @click="onResetPassword(row)">重置密码</el-button>
               <el-button v-if="row.status === 1" size="small" type="danger" plain @click="onToggle(row, 0)">停用</el-button>
               <el-button v-else size="small" type="success" plain @click="onToggle(row, 1)">启用</el-button>
@@ -88,7 +100,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUserPage, createUser, updateUserStatus, resetUserPassword } from '@/api/user'
+import { getUserPage, createUser, updateUserStatus, resetUserPassword, renewUser } from '@/api/user'
 import type { UserRow } from '@/api/user'
 import { useAdaptivePager } from '@/composables/useAdaptivePager'
 
@@ -164,6 +176,30 @@ async function onResetPassword(row: UserRow) {
     )
     await resetUserPassword(row.id)
     ElMessage.success('密码已重置为 123456')
+  } catch { /* 取消 */ }
+}
+
+function isExpired(row: UserRow): boolean {
+  return !!row.expireTime && new Date(row.expireTime).getTime() < Date.now()
+}
+
+function expireSoon(row: UserRow): boolean {
+  if (!row.expireTime) return false
+  const diff = new Date(row.expireTime).getTime() - Date.now()
+  return diff > 0 && diff < 30 * 24 * 3600 * 1000
+}
+
+async function onRenew(row: UserRow) {
+  const action = isExpired(row) ? '重新开通' : '续费'
+  try {
+    await ElMessageBox.confirm(
+      `确认为 ${row.realName || row.username} ${action} 1 年吗?${isExpired(row) ? '' : '(未到期将顺延一年)'}`,
+      action,
+      { confirmButtonText: action, cancelButtonText: '取消', type: 'warning' }
+    )
+    await renewUser(row.id, 1)
+    ElMessage.success(`${action}成功, 有效期已更新`)
+    load()
   } catch { /* 取消 */ }
 }
 
