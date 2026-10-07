@@ -8,7 +8,7 @@ export interface UserInfo {
   realName: string
   nickname: string
   avatar: string
-  role: 'student' | 'teacher' | 'admin'
+  role: string
   phone: string
   email: string
   gender: number
