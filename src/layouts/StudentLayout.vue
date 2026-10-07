@@ -4,7 +4,7 @@
       <el-aside width="200px" class="app-aside">
         <div class="brand">
           <img src="/logo.jpg" alt="" class="brand-img" />
-          <span class="brand-name">砚衡升学</span>
+          <span class="brand-name">砚衡AI云数据升学规划系统</span>
         </div>
         <el-menu :default-active="route.path" router>
         <el-menu-item index="/student/dashboard">
@@ -72,7 +72,7 @@ async function doLogout() {
     align-items: center;
     gap: 8px;
     padding: 16px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
   }
 }

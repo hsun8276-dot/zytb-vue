@@ -1,4 +1,4 @@
-# 志愿填报系统前端(zytb-vue)
+# 砚衡AI云数据升学规划系统 前端(zytb-vue)
 
 Vue 3 + TypeScript + Vite + Element Plus + Pinia,与魄力学习前端同构(request 封装/加密信封开关/路由守卫/角色布局)。
 

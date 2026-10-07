@@ -87,7 +87,7 @@
       <div class="form-side">
         <div class="brand-row">
           <img class="brand-logo" src="/logo.jpg" alt="砚衡升学" />
-          <div class="brand-title">砚衡升学 · 志愿填报系统</div>
+          <div class="brand-title">砚衡AI云数据升学规划系统</div>
         </div>
         <div class="brand-divider"></div>
 
