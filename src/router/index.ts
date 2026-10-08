@@ -12,7 +12,7 @@ const routes: RouteRecordRaw[] = [
       { path: '', redirect: '/student/dashboard' },
       { path: 'dashboard', name: 'StudentDashboard', component: () => import('@/views/student/Dashboard.vue') },
       // 志愿填报
-      { path: 'aspiration/plan', name: 'StudentAspirationPlan', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '填报方案' } },
+      { path: 'aspiration/plan', name: 'StudentAspirationPlan', component: () => import('@/views/student/AspirationPlan.vue'), meta: { title: '填报方案' } },
       { path: 'aspiration/list', name: 'StudentAspirationList', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '志愿表管理' } },
       // 前台交单
       { path: 'submit/records', name: 'StudentSubmitRecords', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '交单记录' } },
