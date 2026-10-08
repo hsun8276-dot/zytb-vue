@@ -20,10 +20,30 @@
 
   ol, ul { list-style: none; }
 
-  // Azzara 自定义复选框的勾号依赖 FA5 字体名
-  .form-check [type="checkbox"] + .form-check-sign:after {
-    font-family: 'Font Awesome 7 Free';
-    font-weight: 900;
+  // 不依赖 Font Awesome 字形绘制勾号，避免新版本字体把 \f00c 渲染成方框
+  .form-check [type="checkbox"]:not(:checked) + .form-check-sign:after,
+  .form-check [type="checkbox"]:checked + .form-check-sign:after {
+    content: '';
+    top: 2px;
+    left: 5px;
+    width: 6px;
+    height: 10px;
+    display: block;
+    border: solid #177dff;
+    border-width: 0 2px 2px 0;
+    font-family: inherit;
+    transform: rotate(45deg) scale(1);
+    transform-origin: center;
+  }
+
+  .form-check [type="checkbox"]:not(:checked) + .form-check-sign:after {
+    opacity: 0;
+    transform: rotate(45deg) scale(0);
+  }
+
+  .form-check [type="checkbox"]:checked + .form-check-sign:after {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
   }
 
   /* ---------- asp-mng.css ---------- */
