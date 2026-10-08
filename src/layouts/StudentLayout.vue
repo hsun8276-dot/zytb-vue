@@ -49,7 +49,7 @@
               <el-icon><Van /></el-icon>
               <span>前台交单</span>
             </template>
-            <el-menu-item index="/student/submit/records">交单记录</el-menu-item>
+            <el-menu-item index="/student/submit/aspiration">志愿交单（3+1+2）</el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="query">
@@ -57,10 +57,11 @@
               <el-icon><Search /></el-icon>
               <span>综合查询</span>
             </template>
-            <el-menu-item index="/student/query/college">院校查询</el-menu-item>
-            <el-menu-item index="/student/query/major">专业查询</el-menu-item>
-            <el-menu-item index="/student/query/score-line">分数线查询</el-menu-item>
-            <el-menu-item index="/student/query/rank">位次查询</el-menu-item>
+            <el-menu-item index="/student/query/recruit">招生信息（3+1+2）</el-menu-item>
+            <el-menu-item index="/student/query/control-line">历年省控线查询</el-menu-item>
+            <el-menu-item index="/student/query/rank">一分一档表查询</el-menu-item>
+            <el-menu-item index="/student/query/tools">综合查询工具</el-menu-item>
+            <el-menu-item index="/student/query/early">提前批查询系统</el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="profile">

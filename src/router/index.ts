@@ -17,12 +17,17 @@ const routes: RouteRecordRaw[] = [
       { path: 'aspiration/plan', name: 'StudentAspirationPlan', component: () => import('@/views/student/AspirationPlan.vue'), meta: { title: '填报方案' } },
       { path: 'aspiration/list', name: 'StudentAspirationList', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '志愿表管理' } },
       // 前台交单
-      { path: 'submit/records', name: 'StudentSubmitRecords', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '交单记录' } },
+      { path: 'submit/aspiration', name: 'StudentSubmitAspiration', component: () => import('@/views/student/SubmitAspiration.vue'), meta: { title: '志愿交单（3+1+2）' } },
+      { path: 'submit/records', redirect: '/student/submit/aspiration' },
       // 综合查询
-      { path: 'query/college', name: 'StudentQueryCollege', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '院校查询' } },
-      { path: 'query/major', name: 'StudentQueryMajor', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '专业查询' } },
-      { path: 'query/score-line', name: 'StudentQueryScoreLine', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '分数线查询' } },
-      { path: 'query/rank', name: 'StudentQueryRank', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '位次查询' } },
+      { path: 'query/recruit', name: 'StudentQueryRecruit', component: () => import('@/views/student/QueryRecruit.vue'), meta: { title: '招生信息（3+1+2）' } },
+      { path: 'query/control-line', name: 'StudentQueryControlLine', component: () => import('@/views/student/QueryControlLine.vue'), meta: { title: '历年省控线查询' } },
+      { path: 'query/rank', name: 'StudentQueryRank', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '一分一档表查询' } },
+      { path: 'query/tools', name: 'StudentQueryTools', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '综合查询工具' } },
+      { path: 'query/early', name: 'StudentQueryEarly', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '提前批查询系统' } },
+      { path: 'query/college', redirect: '/student/query/recruit' },
+      { path: 'query/major', redirect: '/student/query/recruit' },
+      { path: 'query/score-line', redirect: '/student/query/control-line' },
       // 个人信息维护
       { path: 'profile', name: 'StudentProfile', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '基本资料' } },
       { path: 'password', name: 'StudentPassword', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '修改密码' } }

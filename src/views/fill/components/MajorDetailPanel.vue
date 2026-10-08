@@ -1,10 +1,11 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { fillApi, type MajorDetail } from '@/api/fill'
+import { getQueryMajorDetail } from '@/api/query'
 import { useGx } from '../composables/useGx'
 
 /** 参考系统 ViewMajorDetail.aspx: 招生专业明细 */
-const props = defineProps<{ code: string; rid: string; province: string }>()
+const props = defineProps<{ code?: string; rid: string; province: string }>()
 const { notify } = useGx()
 
 const d = ref<MajorDetail | null>(null)
@@ -20,7 +21,9 @@ const v = (x: unknown) => (x === null || x === undefined ? '' : String(x))
 
 onMounted(async () => {
   try {
-    d.value = await fillApi.majorDetail(props.code, props.rid)
+    d.value = props.code
+      ? await fillApi.majorDetail(props.code, props.rid)
+      : await getQueryMajorDetail(props.rid)
   } catch (e) {
     notify(e, '发生错误', 'danger', 0)
   }
@@ -104,3 +107,4 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+

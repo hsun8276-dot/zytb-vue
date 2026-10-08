@@ -24,6 +24,8 @@ export interface AspirationRow {
   submitter: string
   submitTime: string | null
   createTime: string
+  fillerUserId?: number
+  fillerName?: string
   /* 采集扩展段(详情弹窗) */
   ethnicity?: string
   isFresh?: number
@@ -60,10 +62,62 @@ export interface CreateAspirationParam {
   contactPhone?: string
 }
 
-/** 方案分页列表(填报师看自己创建的, 管理员看全部) */
-export async function getAspirationPage(params: { page?: number; size?: number; keyword?: string; submitStatus?: number }) {
+export interface AspirationListQuery {
+  page?: number
+  size?: number
+  keyword?: string
+  submitStatus?: number
+  province?: string
+  year?: number
+  batch?: string
+  groupName?: string
+  fillerUserId?: number | string
+}
+
+export interface FillerOption {
+  userId: number
+  realName: string
+}
+
+export interface AdmissionMajorRow {
+  serial: number
+  unvCode: string
+  unvName: string
+  majorCode: string
+  majorName: string
+  cutOff: number | null
+  /** 1红(提档分>考分) 0黄(=) -1绿(<) */
+  level: number
+}
+
+export interface AdmissionReport {
+  aspirationCode: string
+  studentName: string
+  genderText: string
+  province: string
+  artsOrScience: string
+  highSchool: string
+  className: string
+  score: number
+  rank: number | null
+  sameCount: number | null
+  majors: AdmissionMajorRow[]
+}
+
+/** 方案分页列表(支持省份/年份/批次/组别/填报师/交单状态筛选) */
+export async function getAspirationPage(params: AspirationListQuery) {
   const r = await request.get('/aspiration/list', { params }) as { records: AspirationRow[]; total: number }
   return { records: r.records || [], total: Number(r.total || 0) }
+}
+
+/** 填报师下拉(创建过方案的账号) */
+export async function getAspirationFillers() {
+  return await request.get('/aspiration/fillers') as FillerOption[]
+}
+
+/** 志愿录取情况报告 */
+export function getAdmissionReport(code: string) {
+  return request.get(`/aspiration/${code}/admission-report`) as Promise<AdmissionReport>
 }
 
 /** 创建方案(添加学生) */

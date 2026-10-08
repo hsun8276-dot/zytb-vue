@@ -48,7 +48,7 @@
         <el-table-column prop="batch" label="批次" width="90" />
         <el-table-column label="志愿名称" min-width="140">
           <template #default="{ row }">
-            <el-link type="primary" :underline="false" @click="openDetail(row)">{{ row.aspirationName }}</el-link>
+            <el-link type="primary" :underline="false" @click="openAdmissionReport(row)">{{ row.aspirationName }}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="genderText" label="性别" width="70" />
@@ -226,6 +226,8 @@
       </template>
     </el-dialog>
 
+    <AdmissionReportDialog ref="reportRef" />
+
     <!-- 编辑志愿信息弹窗(学生核心信息不可改, 只改志愿信息段) -->
     <el-dialog v-model="editVisible" title="编辑志愿信息" width="620px" :close-on-click-modal="false">
       <el-alert type="info" :closable="false" style="margin-bottom:14px">
@@ -260,6 +262,7 @@ import {
   updateAspirationInfo, submitAspiration, deleteAspiration
 } from '@/api/aspiration'
 import type { AspirationRow } from '@/api/aspiration'
+import AdmissionReportDialog from './components/AdmissionReportDialog.vue'
 
 const PROVINCES = ['河北', '北京', '天津', '上海', '重庆', '辽宁', '江苏', '浙江', '山东', '广东',
   '湖北', '湖南', '福建', '安徽', '江西', '河南', '山西', '内蒙古', '吉林', '黑龙江',
@@ -447,6 +450,12 @@ async function onDelete(row: AspirationRow) {
 
 function onFill(row: AspirationRow) {
   window.open(`/fill/${row.aspirationCode}`, '_blank')
+}
+
+const reportRef = ref<InstanceType<typeof AdmissionReportDialog> | null>(null)
+
+function openAdmissionReport(row: AspirationRow) {
+  reportRef.value?.open(row.aspirationCode)
 }
 
 function onMigrate() {

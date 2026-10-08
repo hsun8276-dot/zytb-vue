@@ -1,11 +1,12 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { fillApi, type UnvDetail } from '@/api/fill'
+import { getQueryUnvDetail } from '@/api/query'
 import { useGx } from '../composables/useGx'
 import GvPager from './GvPager.vue'
 
 /** 参考系统 ViewUnvDetail.aspx: 院校(专业组)明细 */
-const props = defineProps<{ code: string; uabId: string }>()
+const props = defineProps<{ code?: string; uabId: string }>()
 const { notify } = useGx()
 
 const d = ref<UnvDetail | null>(null)
@@ -27,7 +28,9 @@ const dash = (v: unknown) => (v === null || v === undefined || v === '' ? '-' : 
 
 onMounted(async () => {
   try {
-    d.value = await fillApi.unvDetail(props.code, props.uabId)
+    d.value = props.code
+      ? await fillApi.unvDetail(props.code, props.uabId)
+      : await getQueryUnvDetail(props.uabId)
   } catch (e) {
     notify(e, '发生错误', 'danger', 0)
   }
@@ -155,3 +158,4 @@ onMounted(async () => {
     </nav>
   </div>
 </template>
+
