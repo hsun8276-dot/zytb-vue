@@ -209,6 +209,7 @@ async function handleLogin() {
     localStorage.setItem('userId', String(res.userId))
     localStorage.setItem('role', res.role)
     localStorage.setItem('username', res.username)
+    if (res.realName) localStorage.setItem('displayName', res.realName)
     try {
       const detail = await getUserDetail(res.userId)
       userStore.setUserInfo({ ...detail, role: detail.role || res.role })

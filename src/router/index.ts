@@ -29,8 +29,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'query/major', redirect: '/student/query/recruit' },
       { path: 'query/score-line', redirect: '/student/query/control-line' },
       // 个人信息维护
-      { path: 'profile', name: 'StudentProfile', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '基本资料' } },
-      { path: 'password', name: 'StudentPassword', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '修改密码' } }
+      { path: 'profile', name: 'StudentProfile', component: () => import('@/views/student/Profile.vue'), meta: { title: '基本资料' } },
+      { path: 'password', name: 'StudentPassword', component: () => import('@/views/student/ChangePassword.vue'), meta: { title: '修改密码' } }
     ]
   },
   // 教师端

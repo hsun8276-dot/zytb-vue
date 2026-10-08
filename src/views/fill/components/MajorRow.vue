@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import type { MajorRow } from '@/api/fill'
 
+
+
 /** 参考系统 MajorTemplate: dataType m=智能推荐 u=按高校检索 a=查看结果 r=报告(无操作列) */
 const props = defineProps<{
   item: MajorRow

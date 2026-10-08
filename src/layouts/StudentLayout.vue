@@ -13,10 +13,29 @@
         <el-icon :size="20"><Menu /></el-icon>
       </button>
       <div class="topbar-blue">
-        <div class="topbar-user">
-          <el-icon :size="18"><UserFilled /></el-icon>
-          <span>{{ username }}</span>
-        </div>
+        <el-dropdown trigger="click" placement="bottom-end" @command="onUserCommand">
+          <div class="topbar-user">
+            <el-icon :size="18"><UserFilled /></el-icon>
+            <span>{{ displayName }}</span>
+            <el-icon :size="12" class="caret"><ArrowDown /></el-icon>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu class="user-dropdown">
+              <el-dropdown-item command="password">
+                <el-icon><Key /></el-icon>
+                <span>修改密码</span>
+              </el-dropdown-item>
+              <el-dropdown-item command="profile">
+                <el-icon><User /></el-icon>
+                <span>编辑个人信息</span>
+              </el-dropdown-item>
+              <el-dropdown-item divided command="logout">
+                <el-icon><SwitchButton /></el-icon>
+                <span>注销</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </div>
 
@@ -84,13 +103,58 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { Menu, UserFilled, Odometer, EditPen, Van, Search, Postcard } from '@element-plus/icons-vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import {
+  Menu, UserFilled, Odometer, EditPen, Van, Search, Postcard,
+  ArrowDown, Key, User, SwitchButton
+} from '@element-plus/icons-vue'
+import { logout as logoutApi, getUserDetail } from '@/api/auth'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
-const username = localStorage.getItem('username') || '填报师'
+const router = useRouter()
+const userStore = useUserStore()
 const collapsed = ref(false)
+
+/** 顶栏展示：昵称优先，否则姓名；不展示手机号/登录账号 */
+const displayName = computed(() => {
+  const info = userStore.userInfo
+  const nick = (info?.nickname || '').trim()
+  const real = (info?.realName || '').trim()
+  if (nick) return nick
+  if (real) return real
+  return localStorage.getItem('displayName') || '用户'
+})
+
+onMounted(async () => {
+  if (!userStore.userInfo) {
+    await userStore.fetchUserInfo(getUserDetail)
+  }
+  const info = userStore.userInfo
+  if (info) {
+    const label = (info.nickname || '').trim() || (info.realName || '').trim()
+    if (label) localStorage.setItem('displayName', label)
+  }
+})
+
+async function onUserCommand(cmd: string) {
+  if (cmd === 'password') {
+    router.push('/student/password')
+    return
+  }
+  if (cmd === 'profile') {
+    router.push('/student/profile')
+    return
+  }
+  if (cmd === 'logout') {
+    try { await logoutApi() } catch { /* ignore */ }
+    userStore.logout()
+    ElMessage.success('已注销')
+    router.replace('/login')
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -183,6 +247,14 @@ const collapsed = ref(false)
       gap: 8px;
       color: #fff;
       font-size: 14px;
+      cursor: pointer;
+      outline: none;
+      user-select: none;
+
+      .caret {
+        margin-left: 2px;
+        opacity: 0.9;
+      }
     }
   }
 }
@@ -226,5 +298,27 @@ const collapsed = ref(false)
   background: #f0f2f5;
   padding: 20px;
   min-width: 0;
+}
+</style>
+
+<style lang="scss">
+/* 顶栏用户下拉(teleport 到 body, 不可 scoped) */
+.user-dropdown.el-dropdown-menu {
+  min-width: 160px;
+  padding: 6px 0;
+
+  .el-dropdown-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+
+    .el-icon {
+      font-size: 15px;
+      color: #606266;
+    }
+  }
 }
 </style>

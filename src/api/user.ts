@@ -37,3 +37,43 @@ export function resetUserPassword(id: number, password?: string) {
 export function renewUser(id: number, years = 1) {
   return request.put(`/user/${id}/renew`, null, { params: { years } }) as Promise<void>
 }
+
+/** 当前登录用户基本资料 */
+export interface UserProfile {
+  id: number
+  username: string
+  realName: string
+  nickname: string
+  phone: string
+  email: string
+  avatar: string
+  signature: string
+  gender: number
+  status: number
+  expireTime: string | null
+  role: string
+}
+
+export function getMyProfile() {
+  return request.get('/user/me') as Promise<UserProfile>
+}
+
+export function updateMyProfile(data: {
+  realName?: string
+  nickname?: string
+  phone?: string
+  email?: string
+  gender?: number
+  signature?: string
+  avatar?: string
+}) {
+  return request.put('/user/profile', data) as Promise<void>
+}
+
+export function changeMyPassword(data: {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}) {
+  return request.put('/user/password', data) as Promise<void>
+}

@@ -334,8 +334,12 @@ const majorColleges = ref<MajorCollegeItem[]>([])
 const activeMajorName = ref('')
 
 onMounted(async () => {
-  provinces.value = await getCollegeProvinces()
-  await doCollegeSearch()
+  // 只拉省份下拉; 不默认全量搜院校(全表 TEXT 字段会拖到前端 30s 超时)
+  try {
+    provinces.value = await getCollegeProvinces()
+  } catch {
+    provinces.value = []
+  }
 })
 
 function switchMode(m: Mode) {
@@ -343,17 +347,23 @@ function switchMode(m: Mode) {
   if (m === 'majorBrowse' && majorCategories.value.length === 0) {
     getMajorCategories().then(list => { majorCategories.value = list || [] })
   }
-  if (m === 'college' && colleges.value.length === 0) {
-    doCollegeSearch()
-  }
 }
 
 async function onProvinceChange() {
   city.value = ''
   cities.value = province.value ? await getCollegeCities(province.value) : []
+  if (province.value) {
+    await doCollegeSearch()
+  } else {
+    colleges.value = []
+  }
 }
 
 async function doCollegeSearch() {
+  if (!province.value && !city.value && !collegeName.value.trim()) {
+    ElMessage.warning('请先选择省份或输入院校名称')
+    return
+  }
   loading.value = true
   try {
     colleges.value = await searchColleges({

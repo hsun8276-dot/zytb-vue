@@ -43,6 +43,8 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('userId')
     localStorage.removeItem('userInfo')
     localStorage.removeItem('role')
+    localStorage.removeItem('username')
+    localStorage.removeItem('displayName')
   }
 
   // 登录后拉取完整用户信息（含头像/昵称/签名等，刷新页面也能恢复）

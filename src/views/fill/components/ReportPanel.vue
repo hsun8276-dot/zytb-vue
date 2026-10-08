@@ -4,6 +4,8 @@ import * as echarts from 'echarts'
 import { fillApi, type MajorRow, type ReportData } from '@/api/fill'
 import { useGx } from '../composables/useGx'
 
+
+
 /** 参考系统 ViewReportNew.aspx: 志愿报告(不含格学广告图与二维码) */
 const props = defineProps<{ code: string }>()
 const { notify } = useGx()
