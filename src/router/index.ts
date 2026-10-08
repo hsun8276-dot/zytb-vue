@@ -4,6 +4,8 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'Login', component: () => import('@/views/Login.vue') },
   { path: '/forgot-password', name: 'ForgotPassword', component: () => import('@/views/ForgotPassword.vue') },
+  // 志愿填报子页面(独立全屏, 复刻参考系统 AspMng.aspx)
+  { path: '/fill/:code', name: 'AspirationFill', component: () => import('@/views/fill/AspirationFill.vue') },
   // 填报师端
   {
     path: '/student',

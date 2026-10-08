@@ -446,7 +446,7 @@ async function onDelete(row: AspirationRow) {
 }
 
 function onFill(row: AspirationRow) {
-  ElMessage.info(`「${row.studentName}」的填报子页面(智能专业推荐/按高校检索/首次招生高校/查看结果)在下一部分开发`)
+  window.open(`/fill/${row.aspirationCode}`, '_blank')
 }
 
 function onMigrate() {

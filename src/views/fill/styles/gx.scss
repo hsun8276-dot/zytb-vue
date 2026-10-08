@@ -1,0 +1,339 @@
+@use 'sass:meta';
+
+// 志愿填报子页面沿用参考系统的 Bootstrap 4.4.1 + Azzara 主题, 全部限定在 .gx 作用域内, 不影响 Element Plus 页面
+.gx {
+  @include meta.load-css('bootstrap441');
+  @include meta.load-css('azzara');
+  @include meta.load-css('ion-rangeslider');
+
+  // 原样式挂在 body 上的基础排版
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #575962;
+  text-align: left;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  // Font Awesome 7 默认等宽 1.25em, 参考系统用的 FA5 为自然宽度
+  --fa-width: auto;
+
+  ol, ul { list-style: none; }
+
+  // Azzara 自定义复选框的勾号依赖 FA5 字体名
+  .form-check [type="checkbox"] + .form-check-sign:after {
+    font-family: 'Font Awesome 7 Free';
+    font-weight: 900;
+  }
+
+  /* ---------- asp-mng.css ---------- */
+  .serial { font-size: 16px; }
+
+  .new-selected {
+    border-radius: 100px !important;
+    background: #ffa534;
+    border-color: #ffa534;
+    color: #fff;
+    position: relative;
+    display: block;
+    text-align: center;
+    padding-top: 3px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .probability { font-size: 20px; color: green; }
+
+  code {
+    padding: 2px 4px;
+    font-size: 85%;
+    color: #c7254e;
+    background-color: #f9f2f4;
+    border-radius: 4px;
+    border: 1px solid #e28ba1;
+  }
+
+  .required {
+    padding: 1px 5px;
+    text-align: center;
+    margin: 4px 4px;
+    font-size: 85%;
+    color: #c7254e;
+    background-color: #f9f2f4;
+    border-radius: 2px;
+    border: 1px solid #e28ba1;
+  }
+
+  .elective {
+    padding: 1px 5px;
+    text-align: center;
+    margin: 4px 4px;
+    font-size: 85%;
+    color: #197c10;
+    background-color: #e3f8e1;
+    border-radius: 2px;
+    border: 1px solid #83c281;
+  }
+
+  .predict { font-size: 85%; margin-right: 4px; color: orangered; }
+
+  table.history { margin-bottom: 0; }
+
+  table.history td {
+    padding: 0 4px 0 0 !important;
+    margin: 0;
+    line-height: 23px;
+    text-align: right;
+    font-size: 85%;
+    width: 20%;
+    border: none;
+  }
+
+  .cell-tall {
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- bootstrap-gridview-patch.css ---------- */
+  .gv th { text-align: center; }
+  .gv > thead > tr > th { border-bottom: 2px solid #ebedf2 !important; }
+  .gv th a { color: #343a40 !important; }
+  .dxbs-pager .form-control-plaintext { font-size: .875rem !important; color: #6c757d !important; }
+  .dxbs-pager .btn { font-size: 11px; padding: 7px 13px; }
+
+  /* ---------- AspMng.aspx 页内样式 ---------- */
+  .irs--flat { height: 0; }
+  .irs--flat .irs-line { top: 3px; }
+  .irs--flat .irs-bar { top: 3px; }
+  .irs--flat .irs-handle { top: 0; }
+
+  .might-overflow {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .might-overflow:hover {
+    text-overflow: clip;
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  .unv-nature {
+    color: #2bb487;
+    background-color: #e6fff2;
+    border: 1px solid #4db992;
+  }
+
+  .major-selected { background-color: #eee !important; }
+
+  .can-push { transition: all 0.3s ease; margin-left: 0; }
+
+  .student-info-bar {
+    position: fixed;
+    top: 130px;
+    left: -300px;
+    width: 290px;
+    height: calc(100vh - 140px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .student-info-bar.active { left: 0; margin-left: 8px; }
+
+  .content-pushed { margin-left: 300px !important; }
+
+  /* ---------- 子页面(原 iframe) 容器 ---------- */
+  .sub-page { width: 100%; height: 100%; overflow: auto; }
+
+  .modal { overflow-y: auto; }
+  .modal-backdrop { opacity: .5; }
+}
+
+/* ---------- sweetalert 2.x ---------- */
+.gx .swal-overlay {
+  position: fixed;
+  inset: 0;
+  text-align: center;
+  font-size: 0;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, .4);
+  z-index: 10000;
+  &::before { content: ' '; display: inline-block; vertical-align: middle; height: 100%; }
+}
+
+.gx .swal-modal {
+  width: 478px;
+  opacity: 1;
+  background-color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 20px auto;
+  z-index: 10001;
+  animation: gx-swal-show .3s;
+}
+
+@keyframes gx-swal-show {
+  0% { transform: scale(1); }
+  1% { transform: scale(.5); }
+  45% { transform: scale(1.05); }
+  80% { transform: scale(.95); }
+  to { transform: scale(1); }
+}
+
+.gx .swal-icon {
+  width: 80px;
+  height: 80px;
+  border-width: 4px;
+  border-style: solid;
+  border-radius: 50%;
+  padding: 0;
+  position: relative;
+  box-sizing: content-box;
+  margin: 20px auto;
+}
+
+.gx .swal-icon:first-child { margin-top: 32px; }
+
+.gx .swal-icon--warning {
+  border-color: #f8bb86;
+  animation: gx-swal-pulse .75s infinite alternate;
+}
+
+.gx .swal-icon--warning__body {
+  width: 5px;
+  height: 47px;
+  top: 10px;
+  border-radius: 2px;
+  margin-left: -2px;
+  position: absolute;
+  left: 50%;
+  background-color: #f8bb86;
+}
+
+.gx .swal-icon--warning__dot {
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-left: -4px;
+  bottom: -11px;
+  background-color: #f8bb86;
+}
+
+@keyframes gx-swal-pulse {
+  0% { border-color: #f8d486; }
+  to { border-color: #f8bb86; }
+}
+
+.gx .swal-title {
+  color: rgba(0, 0, 0, .65);
+  font-weight: 600;
+  text-transform: none;
+  position: relative;
+  display: block;
+  padding: 13px 16px;
+  font-size: 27px;
+  line-height: normal;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.gx .swal-title:not(:last-child) { margin-bottom: 13px; }
+.gx .swal-title:first-child { margin-top: 26px; }
+
+.gx .swal-text {
+  font-size: 16px;
+  position: relative;
+  float: none;
+  line-height: normal;
+  vertical-align: top;
+  text-align: left;
+  display: inline-block;
+  margin: 0;
+  padding: 0 10px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, .64);
+  max-width: calc(100% - 20px);
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.gx .swal-text:last-child { margin-bottom: 45px; }
+
+.gx .swal-footer {
+  text-align: center;
+  padding-top: 13px;
+  margin-top: 13px;
+  padding: 13px 16px;
+  border-radius: inherit;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  margin-bottom: 20px;
+}
+
+.gx .swal-button-container {
+  margin: 5px;
+  display: inline-block;
+  position: relative;
+}
+
+/* ---------- jquery-loading-overlay ---------- */
+.gx .gx-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+
+  .gx-loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255, 193, 7, .25);
+    border-top-color: #ffc107;
+    border-radius: 50%;
+    animation: gx-spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+}
+
+@keyframes gx-spin { to { transform: rotate(360deg); } }
+
+/* ---------- bootstrap-notify ---------- */
+.gx .gx-notify-stack {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  z-index: 21000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  width: 25%;
+  min-width: 300px;
+}
+
+.gx .gx-notify-stack .alert {
+  margin: 0;
+  animation: gx-notify-in .3s ease;
+}
+
+@keyframes gx-notify-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media print {
+  .gx .no-print { display: none !important; }
+}
