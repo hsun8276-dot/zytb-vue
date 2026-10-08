@@ -94,3 +94,71 @@ export async function getControlLinePage(params: {
   }
   return { records: r.records || [], total: Number(r.total || 0) }
 }
+
+/* ---------- 一分一档表 ---------- */
+
+export interface ScoreRankingRow {
+  province: string
+  year: number
+  tableType: string
+  groupName: string
+  score: number
+  sameCount: number
+  cumulative: number
+}
+
+export function getScoreRankingProvinces() {
+  return request.get('/aspiration/query/score-ranking/provinces') as Promise<string[]>
+}
+
+export function getScoreRankingYears(province: string) {
+  return request.get('/aspiration/query/score-ranking/years', { params: { province } }) as Promise<number[]>
+}
+
+export function getScoreRankingGroups(province: string, year: number) {
+  return request.get('/aspiration/query/score-ranking/groups', { params: { province, year } }) as Promise<string[]>
+}
+
+export async function getScoreRankingPage(params: {
+  province: string
+  year: number
+  groupName: string
+  tableType?: string
+  page?: number
+  size?: number
+}) {
+  const r = await request.get('/aspiration/query/score-ranking/list', { params }) as {
+    records: ScoreRankingRow[]
+    total: number
+  }
+  return { records: r.records || [], total: Number(r.total || 0) }
+}
+
+/** 导出一分一档 Excel(blob 下载) */
+export async function exportScoreRanking(params: {
+  province: string
+  year: number
+  groupName: string
+  tableType?: string
+}) {
+  const axios = (await import('axios')).default
+  const token = localStorage.getItem('token')
+  const userId = localStorage.getItem('userId')
+  const resp = await axios.get('/api/aspiration/query/score-ranking/export', {
+    params,
+    responseType: 'blob',
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+      'X-User-Id': userId || ''
+    }
+  })
+  const cd = resp.headers['content-disposition'] || ''
+  const m = /filename\*=UTF-8''([^;]+)/i.exec(cd) || /filename="?([^";]+)"?/i.exec(cd)
+  const fileName = m ? decodeURIComponent(m[1]) : '一分一档表.xlsx'
+  const url = URL.createObjectURL(resp.data)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = fileName
+  a.click()
+  URL.revokeObjectURL(url)
+}

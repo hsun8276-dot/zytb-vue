@@ -22,7 +22,7 @@ const routes: RouteRecordRaw[] = [
       // 综合查询
       { path: 'query/recruit', name: 'StudentQueryRecruit', component: () => import('@/views/student/QueryRecruit.vue'), meta: { title: '招生信息（3+1+2）' } },
       { path: 'query/control-line', name: 'StudentQueryControlLine', component: () => import('@/views/student/QueryControlLine.vue'), meta: { title: '历年省控线查询' } },
-      { path: 'query/rank', name: 'StudentQueryRank', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '一分一档表查询' } },
+      { path: 'query/rank', name: 'StudentQueryRank', component: () => import('@/views/student/QueryScoreRanking.vue'), meta: { title: '一分一档表查询' } },
       { path: 'query/tools', name: 'StudentQueryTools', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '综合查询工具' } },
       { path: 'query/early', name: 'StudentQueryEarly', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '提前批查询系统' } },
       { path: 'query/college', redirect: '/student/query/recruit' },
