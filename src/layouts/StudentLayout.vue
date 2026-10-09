@@ -59,7 +59,7 @@
               <el-icon><EditPen /></el-icon>
               <span>志愿填报</span>
             </template>
-            <el-menu-item index="/student/aspiration/plan">填报方案</el-menu-item>
+            <el-menu-item index="/student/aspiration/plan">志愿填报(3+1+2)</el-menu-item>
             <el-menu-item index="/student/aspiration/list">志愿表管理</el-menu-item>
           </el-sub-menu>
 
