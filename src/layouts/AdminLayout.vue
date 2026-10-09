@@ -39,6 +39,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { HomeFilled, User, School, Setting } from '@element-plus/icons-vue'
 import { logout } from '@/api/auth'
 
 const route = useRoute()

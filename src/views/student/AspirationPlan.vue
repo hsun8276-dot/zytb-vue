@@ -25,16 +25,10 @@
         </div>
       </div>
 
-      <!-- 操作行: 添加学生 / 一键迁移 / 显示数据采集二维码 -->
+      <!-- 操作行: 添加学生。一键迁移、数据采集二维码不做 -->
       <div class="op-row">
         <el-button type="success" @click="openCreate">
           <el-icon style="margin-right:4px"><Avatar /></el-icon> 添加学生
-        </el-button>
-        <el-button class="btn-amber" @click="onMigrate">
-          <el-icon style="margin-right:4px"><Switch /></el-icon> 一键迁移
-        </el-button>
-        <el-button type="danger" class="op-right" @click="onShowQr">
-          <el-icon style="margin-right:4px"><Postcard /></el-icon> 显示数据采集二维码
         </el-button>
       </div>
 
@@ -256,7 +250,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Avatar, Search, Switch, Postcard, EditPen, CloseBold, WarningFilled } from '@element-plus/icons-vue'
+import { Avatar, Search, EditPen, CloseBold, WarningFilled } from '@element-plus/icons-vue'
 import {
   getAspirationPage, createAspiration, getAspirationDetail,
   updateAspirationInfo, submitAspiration, deleteAspiration
@@ -458,14 +452,6 @@ function openAdmissionReport(row: AspirationRow) {
   reportRef.value?.open(row.aspirationCode)
 }
 
-function onMigrate() {
-  ElMessage.info('一键迁移: 用于迁移历史方案数据, 功能待接入')
-}
-
-function onShowQr() {
-  ElMessage.info('数据采集二维码: 学生/家长扫码补全民族/单科成绩/体检等信息, 功能待接入')
-}
-
 onMounted(load)
 </script>
 
@@ -514,20 +500,6 @@ onMounted(load)
   padding-bottom: 14px;
 }
 
-.op-right {
-  margin-left: auto;
-}
-
-.btn-amber {
-  background: #d99a17;
-  border-color: #d99a17;
-  color: #fff;
-}
-
-.btn-amber:hover {
-  opacity: 0.88;
-  color: #fff;
-}
 
 .hist-subject {
   color: #d78a12;
