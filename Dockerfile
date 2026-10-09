@@ -9,7 +9,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine
-ENV TZ=Asia/Shanghai NGINX_PORT=80
+# GATEWAY_UPSTREAM: Linux host 网络用 127.0.0.1:8800；Mac compose 用 hbbxl-gateway:8800
+ENV TZ=Asia/Shanghai NGINX_PORT=80 GATEWAY_UPSTREAM=127.0.0.1:8800
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /src/dist /usr/share/nginx/html
 EXPOSE 80
