@@ -4,17 +4,26 @@
 
     <el-card shadow="never">
       <div class="filter-row">
-        <el-select v-model="province" clearable placeholder="省份" style="width:140px" @change="onProvinceChange">
+        <el-select v-model="province" clearable placeholder="省份" style="width:130px" @change="onProvinceChange">
           <el-option v-for="p in provinces" :key="p" :label="p" :value="p" />
         </el-select>
-        <el-select v-model="city" clearable placeholder="城市" style="width:140px;margin-left:8px" :disabled="!province" @change="search">
+        <el-select v-model="city" clearable placeholder="城市" style="width:130px;margin-left:8px" :disabled="!province" @change="search">
           <el-option v-for="c in cities" :key="c" :label="c" :value="c" />
+        </el-select>
+        <el-select v-model="level" clearable placeholder="层次" style="width:120px;margin-left:8px" @change="search">
+          <el-option v-for="v in levels" :key="v" :label="v" :value="v" />
+        </el-select>
+        <el-select v-model="collegeType" clearable placeholder="类型" style="width:120px;margin-left:8px" @change="search">
+          <el-option v-for="v in collegeTypes" :key="v" :label="v" :value="v" />
+        </el-select>
+        <el-select v-model="property" clearable placeholder="性质" style="width:120px;margin-left:8px" @change="search">
+          <el-option v-for="v in properties" :key="v" :label="v" :value="v" />
         </el-select>
         <el-input
           v-model="keyword"
           placeholder="校名 / 内部编码"
           clearable
-          style="width:220px;margin-left:8px"
+          style="width:200px;margin-left:8px"
           @keyup.enter="search"
           @clear="search"
         />
@@ -83,7 +92,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAdminCollegePage } from '@/api/admin'
+import { getAdminCollegeFilters, getAdminCollegePage } from '@/api/admin'
 import type { AdminCollegeRow } from '@/api/admin'
 import { getCollegeCities, getCollegeDetail, getCollegeProvinces } from '@/api/college'
 import type { CollegeDetail } from '@/api/college'
@@ -96,8 +105,14 @@ const pageSize = ref(20)
 const keyword = ref('')
 const province = ref('')
 const city = ref('')
+const level = ref('')
+const collegeType = ref('')
+const property = ref('')
 const provinces = ref<string[]>([])
 const cities = ref<string[]>([])
+const levels = ref<string[]>([])
+const collegeTypes = ref<string[]>([])
+const properties = ref<string[]>([])
 
 const detailVisible = ref(false)
 const detail = ref<CollegeDetail | null>(null)
@@ -128,7 +143,10 @@ async function load() {
       size: pageSize.value,
       province: province.value || undefined,
       city: city.value || undefined,
-      keyword: keyword.value || undefined
+      keyword: keyword.value || undefined,
+      level: level.value || undefined,
+      collegeType: collegeType.value || undefined,
+      property: property.value || undefined
     })
     list.value = r.records
     total.value = r.total
@@ -155,6 +173,16 @@ onMounted(async () => {
   } catch {
     provinces.value = []
   }
+  try {
+    const f = await getAdminCollegeFilters()
+    levels.value = f.levels || []
+    collegeTypes.value = f.collegeTypes || []
+    properties.value = f.properties || []
+  } catch {
+    levels.value = []
+    collegeTypes.value = []
+    properties.value = []
+  }
   load()
 })
 </script>
@@ -169,6 +197,8 @@ onMounted(async () => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 0;
+  row-gap: 8px;
   margin-bottom: 14px;
 }
 

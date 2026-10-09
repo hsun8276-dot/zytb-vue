@@ -44,12 +44,23 @@ export async function getAdminCollegePage(params: {
   province?: string
   city?: string
   keyword?: string
+  level?: string
+  collegeType?: string
+  property?: string
 }) {
   const r = await request.get('/college/admin/page', { params }) as {
     records: AdminCollegeRow[]
     total: number
   }
   return { records: r.records || [], total: Number(r.total || 0) }
+}
+
+export function getAdminCollegeFilters() {
+  return request.get('/college/admin/filters') as Promise<{
+    levels: string[]
+    collegeTypes: string[]
+    properties: string[]
+  }>
 }
 
 export interface SysConfigItem {
