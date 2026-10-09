@@ -18,6 +18,10 @@
           <el-icon><School /></el-icon>
           <span>院校管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/logs">
+          <el-icon><Document /></el-icon>
+          <span>操作日志</span>
+        </el-menu-item>
         <el-menu-item index="/admin/settings">
           <el-icon><Setting /></el-icon>
           <span>系统配置</span>
@@ -39,7 +43,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { HomeFilled, User, School, Setting } from '@element-plus/icons-vue'
+import { HomeFilled, User, School, Setting, Document } from '@element-plus/icons-vue'
 import { logout } from '@/api/auth'
 
 const route = useRoute()

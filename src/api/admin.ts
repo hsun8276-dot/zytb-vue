@@ -71,3 +71,41 @@ export function getAdminConfigList() {
 export function saveAdminConfig(body: Record<string, string>) {
   return request.put('/config/admin', body) as Promise<void>
 }
+
+export interface AdminLogRow {
+  id: number
+  userId: number | null
+  username: string | null
+  realName: string | null
+  module: string
+  action: string
+  requestParams: string | null
+  responseData: string | null
+  ip: string | null
+  duration: number | null
+  status: number
+  createTime: string | null
+}
+
+export async function getAdminLogPage(params: {
+  page?: number
+  size?: number
+  keyword?: string
+  status?: number | ''
+  module?: string
+}) {
+  const q: Record<string, unknown> = {
+    page: params.page,
+    size: params.size,
+    keyword: params.keyword || undefined,
+    module: params.module || undefined
+  }
+  if (params.status === 0 || params.status === 1) {
+    q.status = params.status
+  }
+  const r = await request.get('/user/admin/logs', { params: q }) as {
+    records: AdminLogRow[]
+    total: number
+  }
+  return { records: r.records || [], total: Number(r.total || 0) }
+}

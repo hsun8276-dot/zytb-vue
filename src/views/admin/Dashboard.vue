@@ -29,6 +29,7 @@
       <div class="quick-row">
         <el-button type="primary" @click="$router.push('/admin/users')">用户管理</el-button>
         <el-button @click="$router.push('/admin/colleges')">院校管理</el-button>
+        <el-button @click="$router.push('/admin/logs')">操作日志</el-button>
         <el-button @click="$router.push('/admin/settings')">系统配置</el-button>
       </div>
       <p class="note">
