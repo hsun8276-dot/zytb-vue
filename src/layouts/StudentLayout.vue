@@ -79,7 +79,7 @@
             <el-menu-item index="/student/query/recruit">招生信息（3+1+2）</el-menu-item>
             <el-menu-item index="/student/query/control-line">历年省控线查询</el-menu-item>
             <el-menu-item index="/student/query/rank">一分一档表查询</el-menu-item>
-            <el-menu-item index="/student/query/tools">综合查询工具</el-menu-item>
+            <el-menu-item index="query-tools-external" @click="openQueryTools">综合查询工具</el-menu-item>
             <el-menu-item index="/student/query/early">提前批查询系统</el-menu-item>
           </el-sub-menu>
 
@@ -138,6 +138,11 @@ onMounted(async () => {
     if (label) localStorage.setItem('displayName', label)
   }
 })
+
+/** 对齐参考站 :9002 —— 综合查询工具在新窗口打开独立 SPA */
+function openQueryTools() {
+  window.open('/query-tools', '_blank', 'noopener')
+}
 
 async function onUserCommand(cmd: string) {
   if (cmd === 'password') {

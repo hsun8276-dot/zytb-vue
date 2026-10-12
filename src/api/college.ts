@@ -34,8 +34,24 @@ export interface CollegeDetail {
   keyLab: string
   vrAddress: string
   baiduBaike: string
+  studentTeacherRatio: string
+  doubleFirstClass: string
+  extraPic: string
   hasMaster: boolean
   hasDoctor: boolean
+  canRecommend?: boolean
+  ranks?: { rankName: string; rankValue: string; year?: number }[]
+  reports?: { newsName: string; newsUrl: string; title: string }[]
+  graduates?: {
+    year: number
+    graduationNum?: number | null
+    num?: number | null
+    masterNum?: number | null
+    home?: number | null
+    abroad?: number | null
+    masterRate?: string
+  }[]
+  estimates?: { level: string; majors: string }[]
 }
 
 export interface CollegeMajorGroup {
@@ -100,4 +116,87 @@ export function searchMajorNames(keyword: string) {
 
 export function getCollegesByMajor(majorName: string) {
   return request.get('/college/majors/colleges', { params: { majorName } }) as Promise<MajorCollegeItem[]>
+}
+
+export interface MajorLevelItem {
+  id: number
+  name: string
+}
+
+export interface MajorTreeGroup {
+  name: string
+  code: string
+}
+
+export interface MajorTreeCategory {
+  category: string
+  groups: MajorTreeGroup[]
+}
+
+export interface MajorGroupDetail {
+  groupCode: string
+  majorGroup: string
+  category: string
+  level: number | null
+  majors: { majorCode: string; majorName: string }[]
+}
+
+export function getMajorLevels() {
+  return request.get('/college/majors/levels') as Promise<MajorLevelItem[]>
+}
+
+export function getMajorTree(level: number) {
+  return request.get('/college/majors/tree', { params: { level } }) as Promise<MajorTreeCategory[]>
+}
+
+export function getMajorsByGroup(code: string) {
+  return request.get('/college/majors/group', { params: { code } }) as Promise<MajorGroupDetail>
+}
+
+export interface ProfessionListItem {
+  occId: number
+  occName: string
+  industry: string
+  occType: string
+  positionSalary: string
+}
+
+export interface ProfessionDetail extends ProfessionListItem {
+  definition: string
+  occIntroduction: string
+  jobRequire: string
+  occTrait: string
+  developmentSpace: string
+  workContact: string
+}
+
+export interface ProfessionMajorItem {
+  majorCode: string
+  majorName: string
+  bachelor: string
+  duration: string
+}
+
+export function getProfessionIndustries() {
+  return request.get('/college/professions/industries') as Promise<string[]>
+}
+
+export function getProfessionTypes(industry: string) {
+  return request.get('/college/professions/types', { params: { industry } }) as Promise<string[]>
+}
+
+export function searchProfessions(params: {
+  industry?: string
+  occType?: string
+  occName?: string
+}) {
+  return request.get('/college/professions/search', { params }) as Promise<ProfessionListItem[]>
+}
+
+export function getProfessionDetail(occId: number) {
+  return request.get(`/college/professions/${occId}`) as Promise<ProfessionDetail>
+}
+
+export function getProfessionMajors(occId: number) {
+  return request.get(`/college/professions/${occId}/majors`) as Promise<ProfessionMajorItem[]>
 }

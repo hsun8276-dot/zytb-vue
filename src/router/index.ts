@@ -6,6 +6,34 @@ const routes: RouteRecordRaw[] = [
   { path: '/forgot-password', name: 'ForgotPassword', component: () => import('@/views/ForgotPassword.vue') },
   // 志愿填报子页面(独立全屏, 复刻参考系统 AspMng.aspx)
   { path: '/fill/:code', name: 'AspirationFill', component: () => import('@/views/fill/AspirationFill.vue') },
+  // 综合查询工具(独立全屏 SPA, 对齐参考站 :9002 新窗口打开)
+  // 专业/职业路径须排在 :code 之前
+  {
+    path: '/query-tools/majors/:groupCode?',
+    name: 'QueryToolsMajors',
+    component: () => import('@/views/student/QueryTools.vue'),
+    meta: { title: '专业查询' }
+  },
+  {
+    path: '/query-tools/professions/:occId',
+    name: 'QueryToolsProfessionDetail',
+    component: () => import('@/views/student/QueryTools.vue'),
+    meta: { title: '职业详情' }
+  },
+  {
+    path: '/query-tools/professions',
+    name: 'QueryToolsProfessions',
+    component: () => import('@/views/student/QueryTools.vue'),
+    meta: { title: '职业查询' }
+  },
+  {
+    path: '/query-tools/:code?',
+    name: 'QueryTools',
+    component: () => import('@/views/student/QueryTools.vue'),
+    meta: { title: '综合查询工具' }
+  },
+  // 旧菜单路径 → 独立页
+  { path: '/student/query/tools', redirect: '/query-tools' },
   // 填报师端
   {
     path: '/student',
@@ -23,7 +51,6 @@ const routes: RouteRecordRaw[] = [
       { path: 'query/recruit', name: 'StudentQueryRecruit', component: () => import('@/views/student/QueryRecruit.vue'), meta: { title: '招生信息（3+1+2）' } },
       { path: 'query/control-line', name: 'StudentQueryControlLine', component: () => import('@/views/student/QueryControlLine.vue'), meta: { title: '历年省控线查询' } },
       { path: 'query/rank', name: 'StudentQueryRank', component: () => import('@/views/student/QueryScoreRanking.vue'), meta: { title: '一分一档表查询' } },
-      { path: 'query/tools', name: 'StudentQueryTools', component: () => import('@/views/student/QueryTools.vue'), meta: { title: '综合查询工具' } },
       { path: 'query/early', name: 'StudentQueryEarly', component: () => import('@/views/student/UnderConstruction.vue'), meta: { title: '提前批查询系统' } },
       { path: 'query/college', redirect: '/student/query/recruit' },
       { path: 'query/major', redirect: '/student/query/recruit' },

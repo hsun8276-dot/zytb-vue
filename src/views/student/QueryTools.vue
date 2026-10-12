@@ -1,16 +1,32 @@
 <template>
-  <div class="query-tools-page">
-    <h2 class="page-title">
-      <el-icon style="margin-right:6px"><Search /></el-icon>
-      综合查询工具
-    </h2>
-    <el-breadcrumb separator="/" class="crumb">
-      <el-breadcrumb-item>综合查询</el-breadcrumb-item>
-      <el-breadcrumb-item>综合查询工具</el-breadcrumb-item>
-    </el-breadcrumb>
+  <!-- 院校详情：1:1 对齐源站 :9002/{code} -->
+  <CollegeDetailView v-if="detailMode" :code="detailCode" />
 
+  <!-- 职业详情：对齐 :9002/ProfessionPage/{occId} -->
+  <ProfessionDetailView v-else-if="professionDetailId > 0" :occ-id="professionDetailId" />
+
+  <!-- 专业查询：1:1 对齐源站 :9002/TransferPage/{groupCode} -->
+  <MajorTransferPage
+    v-else-if="mode === 'majorBrowse'"
+    :initial-group-code="majorGroupCode"
+    @go-college="switchMode('college')"
+    @go-profession="switchMode('profession')"
+    @open-major="openMajorColleges"
+    @group-change="onGroupChange"
+  />
+
+  <!-- 职业查询：1:1 对齐 :9002/ProfessionSearch -->
+  <ProfessionSearch
+    v-else-if="mode === 'profession'"
+    @go-college="switchMode('college')"
+    @go-major="switchMode('majorBrowse')"
+    @go-major-search="switchMode('majorSearch')"
+    @open-detail="openProfessionDetail"
+  />
+
+  <!-- 院校查询 / 专业搜索列表：对齐源站 FirstPage 定宽居中 -->
+  <div v-else class="query-tools-page standalone">
     <div class="tool-shell">
-      <!-- 顶栏操作 -->
       <div class="tool-header">
         <div class="header-left">
           <template v-if="mode === 'college'">
@@ -31,29 +47,9 @@
               filterable
               style="width: 160px"
               :disabled="!province"
+              @change="doCollegeSearch"
             >
               <el-option v-for="c in cities" :key="c" :label="c" :value="c" />
-            </el-select>
-          </template>
-          <template v-else-if="mode === 'majorBrowse'">
-            <el-select
-              v-model="majorCategory"
-              placeholder="学科门类"
-              clearable
-              style="width: 140px"
-              @change="onCategoryChange"
-            >
-              <el-option v-for="c in majorCategories" :key="c" :label="c" :value="c" />
-            </el-select>
-            <el-select
-              v-model="majorDiscipline"
-              placeholder="专业类"
-              clearable
-              filterable
-              style="width: 180px"
-              :disabled="!majorCategory"
-            >
-              <el-option v-for="d in majorDisciplines" :key="d" :label="d" :value="d" />
             </el-select>
           </template>
           <template v-else-if="mode === 'majorSearch'">
@@ -67,47 +63,40 @@
           </template>
         </div>
         <div class="header-right">
+          <el-button type="primary" class="btn-major" @click="switchMode('majorBrowse')">专业查询</el-button>
           <el-button
-            :type="mode === 'majorBrowse' ? 'primary' : 'default'"
-            class="btn-major"
-            @click="switchMode('majorBrowse')"
-          >专业查询</el-button>
+            :type="mode === 'majorSearch' ? 'primary' : 'default'"
+            @click="switchMode('majorSearch')"
+          >专业搜索</el-button>
         </div>
       </div>
 
       <div class="tool-search" v-if="mode === 'college'">
-        <el-input
-          v-model="collegeName"
-          placeholder="请输入院校名称"
-          clearable
-          style="width: 260px"
-          @keyup.enter="doCollegeSearch"
-        />
-        <el-button class="btn-search" @click="doCollegeSearch">搜 索</el-button>
-      </div>
-      <div class="tool-search" v-else-if="mode === 'majorBrowse'">
-        <el-input
-          v-model="dictKeyword"
-          placeholder="专业名称关键字"
-          clearable
-          style="width: 220px"
-          @keyup.enter="doMajorDictSearch"
-        />
-        <el-button class="btn-search" @click="doMajorDictSearch">搜 索</el-button>
-        <el-button @click="switchMode('college')">返回院校</el-button>
+        <div class="search-left">
+          <el-input
+            v-model="collegeName"
+            placeholder="请输入院校名称"
+            clearable
+            style="width: 260px"
+            @keyup.enter="doCollegeSearch"
+          />
+          <el-button class="btn-search" @click="doCollegeSearch">搜 索</el-button>
+        </div>
+        <el-button type="primary" @click="switchMode('profession')">职业查询</el-button>
       </div>
       <div class="tool-search" v-else-if="mode === 'majorSearch'">
-        <el-button class="btn-search" @click="doMajorSearch">搜 索</el-button>
-        <el-button @click="switchMode('college')">返回院校</el-button>
-      </div>
-      <div class="tool-search" v-else>
-        <el-button @click="switchMode('college')">返回院校</el-button>
+        <div class="search-left">
+          <el-button class="btn-search" @click="doMajorSearch">搜 索</el-button>
+          <el-button @click="switchMode('college')">返回院校</el-button>
+        </div>
+        <el-button type="primary" @click="switchMode('profession')">职业查询</el-button>
       </div>
 
-      <div class="tool-tip">注：内部编码不可用于填报</div>
-      <div class="tool-divider" />
+      <div class="tool-badge-row">
+        <div class="tool-badge">{{ mode === 'college' ? '查询院校' : '查询专业' }}</div>
+        <div class="tool-tip">注：内部编码不可用于填报</div>
+      </div>
 
-      <!-- 院校列表 -->
       <div v-show="mode === 'college'" class="college-list" v-loading="loading">
         <div
           v-for="item in colleges"
@@ -121,21 +110,6 @@
         <el-empty v-if="!loading && colleges.length === 0" description="无数据" />
       </div>
 
-      <!-- 专业目录 -->
-      <div v-show="mode === 'majorBrowse'" class="major-list" v-loading="loading">
-        <div
-          v-for="m in majorDictList"
-          :key="m.majorCode"
-          class="major-row"
-          @click="openMajorColleges(m.majorName)"
-        >
-          <div class="major-name">【{{ m.majorCode }}】{{ m.majorName }}</div>
-          <div class="major-meta">{{ m.category }} · {{ m.firstDiscipline }}</div>
-        </div>
-        <el-empty v-if="!loading && majorDictList.length === 0" description="请选择门类或输入关键字检索" />
-      </div>
-
-      <!-- 专业搜索结果 -->
       <div v-show="mode === 'majorSearch'" class="major-list" v-loading="loading">
         <div
           v-for="name in majorNameList"
@@ -147,163 +121,72 @@
         </div>
         <el-empty v-if="!loading && majorNameList.length === 0" description="请输入专业名称搜索" />
       </div>
-
-      <!-- 职业查询占位 -->
-      <div v-show="mode === 'profession'" class="profession-empty">
-        <el-empty description="职业数据暂未入库，功能建设中" />
-      </div>
-
-      <!-- 底部浮动按钮(对齐参考站) -->
-      <div class="float-btns">
-        <el-button round @click="switchMode('majorSearch')">专业搜索</el-button>
-        <el-button round type="warning" plain @click="switchMode('profession')">职业查询</el-button>
-      </div>
     </div>
-
-    <!-- 开设某专业的院校 -->
-    <el-dialog
-      v-model="majorCollegesVisible"
-      :title="`开设「${activeMajorName}」的院校`"
-      width="640px"
-      destroy-on-close
-    >
-      <div class="college-list dialog-list" v-loading="majorCollegesLoading">
-        <div
-          v-for="item in majorColleges"
-          :key="item.collegeCode"
-          class="college-row"
-          @click="openCollege(item.collegeCode); majorCollegesVisible = false"
-        >
-          <div class="college-name">{{ item.collegeName }}</div>
-          <div class="college-code">
-            {{ item.province }} {{ item.city }} · 内部编码：{{ item.collegeCode }}
-          </div>
-        </div>
-        <el-empty v-if="!majorCollegesLoading && majorColleges.length === 0" description="暂无院校开设该专业" />
-      </div>
-    </el-dialog>
-
-    <!-- 院校详情 -->
-    <el-drawer
-      v-model="detailVisible"
-      size="640px"
-      destroy-on-close
-      :title="detail?.collegeName || '院校详情'"
-    >
-      <div v-loading="detailLoading" class="detail-body">
-        <template v-if="detail">
-          <div class="detail-hero">
-            <img v-if="detail.collegeImg" :src="detail.collegeImg" class="detail-logo" alt="" />
-            <div class="detail-hero-text">
-              <div class="detail-title">{{ detail.collegeName }}</div>
-              <div class="detail-sub">
-                {{ detail.collegeProvince }} {{ detail.collegeCity }}
-                · {{ detail.collegeProperty }} · {{ detail.collegeLevel }} · {{ detail.collegeType }}
-              </div>
-              <div class="detail-labels" v-if="detail.collegeLabels?.length">
-                <el-tag
-                  v-for="lb in detail.collegeLabels"
-                  :key="lb"
-                  size="small"
-                  effect="plain"
-                  class="lb-tag"
-                >{{ lb }}</el-tag>
-              </div>
-            </div>
-          </div>
-
-          <el-descriptions :column="1" border size="small" class="detail-desc">
-            <el-descriptions-item label="主管部门">{{ detail.collegeAdmin || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="内部编码">{{ detail.collegeCode }}</el-descriptions-item>
-            <el-descriptions-item label="建校时间">{{ detail.collegeTime || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="地址">{{ detail.address || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="电话">{{ (detail.phone || []).join('、') || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="邮箱">{{ detail.email || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="官网">
-              <a v-if="detail.website" :href="detail.website" target="_blank" rel="noopener">{{ detail.website }}</a>
-              <span v-else>-</span>
-            </el-descriptions-item>
-            <el-descriptions-item label="招生网">
-              <a v-if="detail.recruitWebsite" :href="detail.recruitWebsite" target="_blank" rel="noopener">{{ detail.recruitWebsite }}</a>
-              <span v-else>-</span>
-            </el-descriptions-item>
-          </el-descriptions>
-
-          <section v-if="detail.collegeInfo" class="detail-sec">
-            <h4>院校简介</h4>
-            <div class="sec-body" v-html="plainHtml(detail.collegeInfo)" />
-          </section>
-          <section v-if="detail.advantage" class="detail-sec">
-            <h4>优势 / 特色专业</h4>
-            <div class="sec-body" v-html="plainHtml(detail.advantage)" />
-          </section>
-          <section v-if="detail.accommodation" class="detail-sec">
-            <h4>住宿餐饮</h4>
-            <div class="sec-body" v-html="plainHtml(detail.accommodation)" />
-          </section>
-          <section v-if="detail.recruitRule" class="detail-sec">
-            <h4>招生规则摘要</h4>
-            <div class="sec-body" v-html="plainHtml(detail.recruitRule)" />
-          </section>
-          <section v-if="detail.teachers" class="detail-sec">
-            <h4>师资力量</h4>
-            <div class="sec-body" v-html="plainHtml(detail.teachers)" />
-          </section>
-          <section v-if="detail.scholarship" class="detail-sec">
-            <h4>奖助学金</h4>
-            <div class="sec-body" v-html="plainHtml(detail.scholarship)" />
-          </section>
-          <section v-if="detail.transferMajor" class="detail-sec">
-            <h4>转专业政策</h4>
-            <div class="sec-body" v-html="plainHtml(detail.transferMajor)" />
-          </section>
-          <section v-if="detail.famousAlumni" class="detail-sec">
-            <h4>知名校友</h4>
-            <div class="sec-body" v-html="plainHtml(detail.famousAlumni)" />
-          </section>
-
-          <section class="detail-sec">
-            <h4>开设专业</h4>
-            <div v-loading="majorsLoading">
-              <div v-for="g in majorGroups" :key="g.category" class="major-group">
-                <div class="mg-cat">{{ g.category }}</div>
-                <div class="mg-list">{{ g.majorText }}</div>
-              </div>
-              <el-empty v-if="!majorsLoading && majorGroups.length === 0" description="暂无专业数据" :image-size="60" />
-            </div>
-          </section>
-        </template>
-      </div>
-    </el-drawer>
   </div>
+
+  <el-dialog
+    v-model="majorCollegesVisible"
+    :title="`开设「${activeMajorName}」的院校`"
+    width="640px"
+    destroy-on-close
+  >
+    <div class="college-list dialog-list" v-loading="majorCollegesLoading">
+      <div
+        v-for="item in majorColleges"
+        :key="item.collegeCode"
+        class="college-row"
+        @click="openCollege(item.collegeCode); majorCollegesVisible = false"
+      >
+        <div class="college-name">{{ item.collegeName }}</div>
+        <div class="college-code">
+          {{ item.province }} {{ item.city }} · 内部编码：{{ item.collegeCode }}
+        </div>
+      </div>
+      <el-empty v-if="!majorCollegesLoading && majorColleges.length === 0" description="暂无院校开设该专业" />
+    </div>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import CollegeDetailView from './CollegeDetailView.vue'
+import MajorTransferPage from './MajorTransferPage.vue'
+import ProfessionSearch from './ProfessionSearch.vue'
+import ProfessionDetailView from './ProfessionDetailView.vue'
 import {
   getCollegeProvinces,
   getCollegeCities,
   searchColleges,
-  getCollegeDetail,
-  getCollegeMajors,
-  getMajorCategories,
-  getMajorDisciplines,
-  searchMajorDict,
   searchMajorNames,
   getCollegesByMajor,
   type CollegeListItem,
-  type CollegeDetail,
-  type CollegeMajorGroup,
-  type MajorDictItem,
   type MajorCollegeItem
 } from '@/api/college'
 
 type Mode = 'college' | 'majorBrowse' | 'majorSearch' | 'profession'
 
+const route = useRoute()
+const router = useRouter()
+
+const detailCode = computed(() => {
+  if (route.name === 'QueryToolsMajors' || route.name === 'QueryToolsProfessions'
+      || route.name === 'QueryToolsProfessionDetail') return 0
+  const n = Number(route.params.code)
+  return Number.isFinite(n) && n > 0 ? n : 0
+})
+const detailMode = computed(() => detailCode.value > 0)
+
+const professionDetailId = computed(() => {
+  if (route.name !== 'QueryToolsProfessionDetail') return 0
+  const n = Number(route.params.occId)
+  return Number.isFinite(n) && n > 0 ? n : 0
+})
+
 const mode = ref<Mode>('college')
 const loading = ref(false)
+const majorGroupCode = ref('0101')
 
 const provinces = ref<string[]>([])
 const cities = ref<string[]>([])
@@ -312,55 +195,87 @@ const city = ref('')
 const collegeName = ref('')
 const colleges = ref<CollegeListItem[]>([])
 
-const majorCategories = ref<string[]>([])
-const majorDisciplines = ref<string[]>([])
-const majorCategory = ref('')
-const majorDiscipline = ref('')
-const dictKeyword = ref('')
-const majorDictList = ref<MajorDictItem[]>([])
-
 const majorKeyword = ref('')
 const majorNameList = ref<string[]>([])
-
-const detailVisible = ref(false)
-const detailLoading = ref(false)
-const detail = ref<CollegeDetail | null>(null)
-const majorsLoading = ref(false)
-const majorGroups = ref<CollegeMajorGroup[]>([])
 
 const majorCollegesVisible = ref(false)
 const majorCollegesLoading = ref(false)
 const majorColleges = ref<MajorCollegeItem[]>([])
 const activeMajorName = ref('')
 
+function syncModeFromRoute() {
+  if (route.name === 'QueryToolsMajors') {
+    mode.value = 'majorBrowse'
+    majorGroupCode.value = String(route.params.groupCode || '0101') || '0101'
+    document.title = '专业查询'
+    return
+  }
+  if (route.name === 'QueryToolsProfessions' || route.name === 'QueryToolsProfessionDetail') {
+    mode.value = 'profession'
+    if (route.name === 'QueryToolsProfessions') document.title = '职业查询'
+    return
+  }
+  if (detailMode.value) return
+}
+
 onMounted(async () => {
-  // 只拉省份下拉; 不默认全量搜院校(全表 TEXT 字段会拖到前端 30s 超时)
+  syncModeFromRoute()
+  if (detailMode.value || professionDetailId.value > 0
+      || mode.value === 'majorBrowse' || mode.value === 'profession') return
+  document.title = '院校查询'
   try {
-    provinces.value = await getCollegeProvinces()
+    provinces.value = await getCollegeProvinces() || []
   } catch {
     provinces.value = []
   }
+  await doCollegeSearch(true)
+})
+
+watch(() => route.fullPath, () => {
+  syncModeFromRoute()
 })
 
 function switchMode(m: Mode) {
   mode.value = m
-  if (m === 'majorBrowse' && majorCategories.value.length === 0) {
-    getMajorCategories().then(list => { majorCategories.value = list || [] })
+  if (m === 'majorBrowse') {
+    router.push(`/query-tools/majors/${majorGroupCode.value || '0101'}`)
+    return
   }
+  if (m === 'profession') {
+    router.push('/query-tools/professions')
+    return
+  }
+  if (route.name === 'QueryToolsMajors' || route.name === 'QueryToolsProfessions'
+      || route.name === 'QueryToolsProfessionDetail') {
+    router.push('/query-tools')
+  }
+  if (m === 'college') {
+    document.title = '院校查询'
+    if (colleges.value.length === 0) doCollegeSearch(true)
+  } else if (m === 'majorSearch') {
+    document.title = '专业搜索'
+  }
+}
+
+function onGroupChange(code: string) {
+  majorGroupCode.value = code
+  if (route.name === 'QueryToolsMajors' && String(route.params.groupCode) !== code) {
+    router.replace(`/query-tools/majors/${code}`)
+  }
+}
+
+function openProfessionDetail(occId: number) {
+  router.push(`/query-tools/professions/${occId}`)
 }
 
 async function onProvinceChange() {
   city.value = ''
   cities.value = province.value ? await getCollegeCities(province.value) : []
-  if (province.value) {
-    await doCollegeSearch()
-  } else {
-    colleges.value = []
-  }
+  await doCollegeSearch(true)
 }
 
-async function doCollegeSearch() {
-  if (!province.value && !city.value && !collegeName.value.trim()) {
+async function doCollegeSearch(allowEmpty = false) {
+  if (!allowEmpty && !province.value && !city.value && !collegeName.value.trim()) {
     ElMessage.warning('请先选择省份或输入院校名称')
     return
   }
@@ -370,30 +285,6 @@ async function doCollegeSearch() {
       province: province.value || undefined,
       city: city.value || undefined,
       name: collegeName.value || undefined
-    }) || []
-  } finally {
-    loading.value = false
-  }
-}
-
-async function onCategoryChange() {
-  majorDiscipline.value = ''
-  majorDisciplines.value = majorCategory.value
-    ? await getMajorDisciplines(majorCategory.value)
-    : []
-}
-
-async function doMajorDictSearch() {
-  if (!majorCategory.value && !dictKeyword.value) {
-    ElMessage.warning('请选择学科门类或输入专业关键字')
-    return
-  }
-  loading.value = true
-  try {
-    majorDictList.value = await searchMajorDict({
-      category: majorCategory.value || undefined,
-      discipline: majorDiscipline.value || undefined,
-      keyword: dictKeyword.value || undefined
     }) || []
   } finally {
     loading.value = false
@@ -424,48 +315,29 @@ async function openMajorColleges(majorName: string) {
   }
 }
 
-async function openCollege(code: number) {
-  detailVisible.value = true
-  detailLoading.value = true
-  majorsLoading.value = true
-  detail.value = null
-  majorGroups.value = []
-  try {
-    detail.value = await getCollegeDetail(code)
-    majorGroups.value = await getCollegeMajors(code) || []
-  } finally {
-    detailLoading.value = false
-    majorsLoading.value = false
-  }
-}
-
-/** 允许简单 HTML 换行/强调, 去掉脚本 */
-function plainHtml(text: string) {
-  return (text || '')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/&lt;br\s*\/?&gt;/gi, '<br/>')
-    .replace(/\n/g, '<br/>')
+function openCollege(code: number) {
+  window.open(`/query-tools/${code}`, '_blank', 'noopener')
 }
 </script>
 
 <style scoped lang="scss">
-.query-tools-page {
-  .page-title {
-    font-size: 20px;
-    margin: 0 0 8px;
-    display: flex;
-    align-items: center;
-  }
-  .crumb { margin-bottom: 16px; }
+.query-tools-page.standalone {
+  min-height: 100vh;
+  background: #fff;
+  /* 对齐源站 FirstPageBackground：纵向 flex + 水平居中 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .tool-shell {
   position: relative;
-  background: #fff;
-  border-radius: 4px;
-  padding: 16px 20px 72px;
-  min-height: 520px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 18px 24px 24px;
+  box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .tool-header {
@@ -480,6 +352,12 @@ function plainHtml(text: string) {
   gap: 10px;
   flex-wrap: wrap;
 }
+.header-right {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
 .btn-major {
   background: #409eff;
   border-color: #409eff;
@@ -489,6 +367,13 @@ function plainHtml(text: string) {
 
 .tool-search {
   margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.search-left {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -501,85 +386,62 @@ function plainHtml(text: string) {
   &:hover { background: #d47474; border-color: #d47474; color: #fff; }
 }
 
+.tool-badge-row {
+  margin-top: 18px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  border-bottom: 2px solid #cd3532;
+}
+.tool-badge {
+  background: #cd3532;
+  color: #fff;
+  font-size: 16px;
+  padding: 6px 22px 6px 10px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+  line-height: 1.2;
+  white-space: nowrap;
+  position: relative;
+  top: 1px;
+}
 .tool-tip {
-  margin-top: 10px;
   color: #909399;
   font-size: 13px;
-}
-.tool-divider {
-  margin: 12px 0 0;
-  height: 2px;
-  background: #e74c3c;
+  padding-bottom: 6px;
 }
 
 .college-list, .major-list {
-  max-height: calc(100vh - 320px);
+  max-height: calc(100vh - 220px);
   overflow: auto;
 }
 .college-row, .major-row {
   padding: 14px 8px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid #d4d8e1;
   cursor: pointer;
   &:hover { background: #fafafa; }
 }
 .college-name, .major-name {
-  font-size: 15px;
+  font-size: 16px;
   color: #303133;
 }
 .college-code, .major-meta {
   margin-top: 4px;
-  font-size: 12px;
-  color: #909399;
+  font-size: 14px;
+  color: #606266;
 }
+</style>
 
-.float-btns {
-  position: absolute;
-  right: 20px;
-  bottom: 16px;
-  display: flex;
-  gap: 10px;
-}
-
-.detail-body { padding: 0 8px 24px; }
-.detail-hero {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 16px;
-}
-.detail-logo {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  background: #fff;
-}
-.detail-title { font-size: 18px; font-weight: 600; }
-.detail-sub { margin-top: 6px; color: #606266; font-size: 13px; }
-.detail-labels { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
-.lb-tag { margin: 0; }
-.detail-desc { margin-bottom: 16px; }
-.detail-sec {
-  margin-top: 16px;
-  h4 {
-    margin: 0 0 8px;
-    font-size: 15px;
-    border-left: 3px solid #c45656;
-    padding-left: 8px;
+<style lang="scss">
+.college-list.dialog-list {
+  max-height: 420px;
+  overflow: auto;
+  .college-row {
+    padding: 14px 8px;
+    border-bottom: 1px solid #d4d8e1;
+    cursor: pointer;
+    &:hover { background: #fafafa; }
   }
-  .sec-body {
-    color: #606266;
-    font-size: 13px;
-    line-height: 1.7;
-    word-break: break-word;
-  }
+  .college-name { font-size: 16px; color: #303133; }
+  .college-code { margin-top: 4px; font-size: 14px; color: #606266; }
 }
-.major-group {
-  padding: 10px 0;
-  border-bottom: 1px dashed #ebeef5;
-  .mg-cat { font-weight: 600; color: #303133; margin-bottom: 4px; }
-  .mg-list { color: #606266; font-size: 13px; line-height: 1.6; }
-}
-.dialog-list { max-height: 420px; }
-.profession-empty { padding: 40px 0; }
 </style>
